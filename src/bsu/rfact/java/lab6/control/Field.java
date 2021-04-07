@@ -24,7 +24,15 @@ public class Field {
     private static double time;
     private BouncingBall initBall = null;
     private List<BouncingBall> balls = new ArrayList<>(10);
-    
+
+    private Timer repaintTimer = new Timer(10, new ActionListener() {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            time++;
+            repaint();
+        }
+    });
+
     public Field() {
         setBackground(Color.WHITE);
         addMouseListener(new BasicTabbedPaneUI.MouseHandler());
