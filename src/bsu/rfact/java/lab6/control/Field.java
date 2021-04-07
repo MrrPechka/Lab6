@@ -1,18 +1,16 @@
 package bsu.rfact.java.lab6.control;
 
 import bsu.rfact.java.lab6.entity.BouncingBall;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
-import javax.swing.plaf.basic.BasicTabbedPaneUI;
+import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.event.*;
+import java.awt.geom.Ellipse2D;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Timer;
 
-import static com.sun.java.accessibility.util.AWTEventMonitor.addMouseListener;
-
-public class Field {
+public class Field extends JPanel {
     private boolean paused;
     private boolean selectBall;
     private double startTime;
@@ -35,7 +33,7 @@ public class Field {
 
     public Field() {
         setBackground(Color.WHITE);
-        addMouseListener(new BasicTabbedPaneUI.MouseHandler());
+        addMouseListener(new MouseHandler());
         addMouseMotionListener(new MouseMotionHandler());
         repaintTimer.start();
         selectBall = false;
@@ -47,9 +45,6 @@ public class Field {
         for (BouncingBall ball : balls) {
             ball.paint(canvas);
         }
-    }
-
-    private void setBackground(Color white) {
     }
 
     public void addBall() {
@@ -70,4 +65,59 @@ public class Field {
             wait();
         }
     }
+
+    public class MouseHandler extends MouseAdapter {
+
+        @Override
+        public void mousePressed(MouseEvent e) {
+            super.mousePressed(e);
+            for (BouncingBall ball : balls) {
+                Ellipse2D.Double newBall = new Ellipse2D.Double(
+                        ball.getX() - ball.getRadius(), ball.getY() - ball.getRadius(),
+                        2 * ball.getRadius(),2 * ball.getRadius());
+                if (newBall.contains(e.getPoint())) {
+                    pause();
+                    startTime = time;
+                    initBall = ball;
+                    startX = e.getX();
+                    startY = e.getY();
+                    selectBall = true;
+                    break;
+                }
+            }
+        }
+
+        @Override
+        public void mouseReleased(MouseEvent e) {
+            super.mouseReleased(e);
+            if(selectBall) {
+                endTime = time;
+                endX = e.getX();
+                endY = e.getY();
+                if ((endX - startX) != 0 || (endY - startY) != 0) {
+                    initBall.setSpeedX((endX - startX) / (endTime - startTime));
+                    initBall.setSpeedY((endY - startY) / (endTime - startTime));
+                }
+                resume();
+                selectBall = false;
+            }
+        }
+    }
+
+    public class MouseMotionHandler implements MouseMotionListener {
+
+        @Override
+        public void mouseDragged(MouseEvent e) {
+            if(selectBall){
+                initBall.setX(e.getX());
+                initBall.setY(e.getY());
+            }
+        }
+
+        @Override
+        public void mouseMoved(MouseEvent e) {
+            throw new NotImplementedException();
+        }
+    }
+
 }
