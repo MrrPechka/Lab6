@@ -3,6 +3,7 @@ package bsu.rfact.java.lab6.entity;
 import bsu.rfact.java.lab6.control.Field;
 
 import java.awt.*;
+import java.awt.geom.Ellipse2D;
 
 public class BouncingBall implements Runnable{
     private static final int MAX_RADIUS = 40;
@@ -51,6 +52,38 @@ public class BouncingBall implements Runnable{
 
     @Override
     public void run() {
+        try {
+            while (true) {
+                field.canMove(this);
+                if (x + speedX <= radius) {
+                    speedX = -speedX;
+                    x = radius;
+                } else if (x + speedX >= field.getWidth() - radius) {
+                    speedX = -speedX;
+                    x = new Double(field.getWidth() - radius).intValue();
+                } else if (y + speedY <= radius) {
+                    speedY = -speedY;
+                    y = radius;
+                } else if (y + speedY >= field.getHeight() - radius) {
+                    speedY = -speedY;
+                    y = new Double(field.getHeight() - radius).intValue();
+                } else {
+                    x += speedX;
+                    y += speedY;
+                }
 
+                Thread.sleep(16 - speed);
+            }
+        }catch (InterruptedException e) {
+            System.out.println("Process interrupted");
+        }
+    }
+
+    public void paint(Graphics2D canvas){
+        canvas.setColor(color);
+        canvas.setPaint(color);
+        Ellipse2D.Double ball = new Ellipse2D.Double(x - radius, y - radius, 2 * radius, 2 * radius);
+        canvas.draw(ball);
+        canvas.fill(ball);
     }
 }
